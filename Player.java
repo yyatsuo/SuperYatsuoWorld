@@ -12,6 +12,11 @@ public class Player {
     private static final int JUMP = 20;
     private static final int GRAVITY = 1;
 
+    private Image imgMeLeft1;
+    
+    // field
+    private Field field;
+
     // プレイヤーの位置
     private int x;
     private int y;
@@ -27,9 +32,11 @@ public class Player {
      * @param x プレイヤーの初期位置X
      * @param y プレイヤーの初期位置y
      */
-    public Player(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Player(Field f) {
+        imgMeLeft1 = getImg("image/player_left1.png");
+        field = f;
+        x = field.getPlayerStartPos().x;
+        y = field.getPlayerStartPos().y;
         vx = 0;
         vy = 0;
         isJump = true; // 地面判定できるまではジャンプ中として扱う
@@ -71,10 +78,7 @@ public class Player {
      */
     private boolean isOnGround() {
         // ToDo: ブロック上かどうかのあたり判定
-        if(y > 750) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -100,7 +104,16 @@ public class Player {
 
         // 描画
         // TODO: プレイヤーの画像設定
-        g.setColor(Color.RED);
-        g.fillRect(x, y, WIDTH, HEIGHT);
+        g.drawImage(imgMeLeft1, x, y, null);
+    }
+
+    /**
+     * 画像ファイルからImageクラスへの変換
+     * @param filename 画像ファイルのパス
+     */
+    private Image getImg(String filename) {
+        ImageIcon icon = new ImageIcon(filename);
+        Image img = icon.getImage();
+        return img;
     }
 }

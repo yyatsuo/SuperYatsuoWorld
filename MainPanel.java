@@ -12,6 +12,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
     public static final int HEIGHT = 420;
     
     private Player player;
+    private Field field;
     private Thread mainLoop;
 
     public MainPanel() {
@@ -24,8 +25,12 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
         // キーイベントを取れるようにする
         setFocusable(true);
 
+        // フィールドの初期化
+        field = new Field();
+
         // プレイヤーの初期化
-        player = new Player(30, 30);
+        player = new Player(field);
+
 
         // キーリスナーの登録
         addKeyListener(this);
@@ -93,5 +98,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 
         // Playerの描画
         player.draw(g);
+
+        // filed の描画
+        field.draw(g);
     }
 }
