@@ -15,6 +15,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
     private Field field;
     private Thread mainLoop;
 
+    private int offsetX, offsetY;
+
     public MainPanel() {
         // パネルサイズの設定
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -31,6 +33,9 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
         // プレイヤーの初期化
         player = new Player(field);
 
+        // オフセットの初期化
+        offsetX = 0;
+        offsetY = 0;
 
         // キーリスナーの登録
         addKeyListener(this);
@@ -77,7 +82,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
     }
 
     public void run() {
-        System.out.println("[DEBUG] Start mainLoop");
         // 50fps で画面更新
         for(;;) {
             try {
@@ -85,6 +89,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
                 Thread.sleep(20);
             } catch (Exception e) {
                 System.out.println(e);
+                System.exit(1);
             }
         }
     }
@@ -96,10 +101,26 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Playerの描画
-        player.draw(g);
+        // X方向のオフセット計算
+        int offsetX = player.getX() - WIDTH/2;
+        if(offsetX < 0) {
+            offsetX = 0;
+        } else if(offsetX > field.getWidthInPx() - WIDTH) {
+            offsetX = field.getWidthInPx() - WIDTH;
+        }
 
-        // filed の描画
-        field.draw(g);
+        // Y方向のオフセット計算
+        int offsetY = player.getY() - HEIGHT/2;
+        if(offsetY < 0) {
+            offsetY = 0;
+        } else if(offsetY > field.getHeightInPx() - HEIGHT) {
+            offsetY = field.getHeightInPx() - HEIGHT;
+        }
+
+        // Playerの描画
+        player.draw(g, offsetX, offsetY);
+
+        // field の描画
+        field.draw(g, offsetX, offsetY);
     }
 }
