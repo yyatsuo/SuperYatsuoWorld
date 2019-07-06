@@ -3,23 +3,23 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class Player {
-    // 定数:プレイヤーの移動方向定義
+    // プレイヤーの移動方向
     private static final int LEFT = 0;
     private static final int RIGHT = 1;
 
     // 移動速度
-    private static final int SPEED = 8;
+    private static final int SPEED = 6;
     private static final int JUMP = 15;
     private static final int GRAVITY = 1;
 
     // 描画関連情報
-    private static final int ANIMATION_CNT = 5; // 100ms 毎に画像入れ替え
+    private static final int ANIMATION_CNT = 5; // 100ms (20ms x 5) 毎に画像入れ替え
     private int animationCounter;
     private Image[] imgMeLeft = new Image[3];
     private Image[] imgMeRight = new Image[3];
 
     // サイズ
-    private int myWidth, myHeight;
+    private int myWidth, myHeight, myLife;
 
     // 進行方向
     private int myDirection;
@@ -31,25 +31,26 @@ public class Player {
     // ユーザ操作
     private boolean requestLeft, requestRight;
 
-    // プレイヤーが存在するfield
+    // field情報
     private Field field;
 
     /**
      * Player コンストラクタ
-     * @param x プレイヤーの初期位置X
-     * @param y プレイヤーの初期位置y
+     * @param f プレイするフィールド
      */
     public Player(Field f) {
+        // アニメーション用のイメージ配列
         imgMeLeft[0] = getImg("image/player_left1.png");
         imgMeLeft[1] = getImg("image/player_left2.png");
         imgMeLeft[2] = getImg("image/player_left3.png");
-        
         imgMeRight[0] = getImg("image/player_right1.png");
         imgMeRight[1] = getImg("image/player_right2.png");
         imgMeRight[2] = getImg("image/player_right3.png");
 
         myWidth = imgMeRight[0].getWidth(null);
         myHeight = imgMeRight[0].getHeight(null);
+
+        myLife = 4;
 
         field = f;
         x = field.getPlayerStartPos().x;
@@ -99,23 +100,39 @@ public class Player {
         }
     }
 
+    /**
+     * プレイヤーのX座標を取得する
+     * @return 現在のX座標
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * プレイヤーのY座標を取得する
+     * @return 現在のY座標
+     */
     public int getY() {
         return y;
     }
 
     /**
+     * プレイヤーの残りライフを取得する
+     * @return 残りライフ
+     */
+    public int getLife() {
+        return myLife;
+    }
+
+    /**
      * あたり判定
-     * TODO: 座標調整して移動可能ぎりぎりまで移動できるようにする
+     * TODO: 座標調整
      */
     private void checkCollision() {
         // 落下速度更新
         vy = vy + GRAVITY;
 
-        // 移動速度計算
+        // 移動速度更新
         if(requestRight) {
             vx = SPEED;
         } else if(requestLeft) {
@@ -123,6 +140,8 @@ public class Player {
         } else {
             vx = 0;
         }
+
+        // 移動先座標の計算
         int nexty = y + vy; 
         int nextx = x + vx;
         
@@ -163,6 +182,8 @@ public class Player {
     /**
      * Player の描画更新
      * @param g グラフィクスオブジェクト
+     * @param offsetX X方向のオフセット
+     * @param offsetY Y方向のオフセット
      */
     public void draw(Graphics g, int offsetX, int offsetY) {
         // あたり判定 & プレイヤー位置更新
@@ -172,6 +193,7 @@ public class Player {
         Image imgMe;
         int index;
         if(vx != 0) {
+            // 歩いてるアニメーション
             if( animationCounter < ANIMATION_CNT) {
                 index = 0;
             } else if ( animationCounter < ANIMATION_CNT*2) {
@@ -186,15 +208,39 @@ public class Player {
             }
             ++animationCounter;
         } else {
+            // 止まってる
             animationCounter = 0;
             index = 0;
         }
 
-
+        // 画像と移動方向を合わせる
         if(myDirection == RIGHT) imgMe = imgMeRight[index];
         else imgMe = imgMeLeft[index];
-
         g.drawImage(imgMe, x-offsetX, y-offsetY, null);
+
+        // タイムオーバーチェック
+        if (field.isTimeOver()) {
+            if (myLife > 0) {
+                // テレッテテレッテテ
+                myLife--;
+                System.out.println(myLife);
+                field.restart();
+                x = field.getPlayerStartPos().x;
+                y = field.getPlayerStartPos().y;
+            } else {
+                // げーむおーばー
+                // TODO: ゲームオーバーっぽい演出
+                System.out.println("Game Over");
+                System.exit(0);
+            }
+        }
+
+        if(field.isGoal()) {
+            // くりあ
+            // TODO: クリアしたっぽい演出
+            System.out.println("Game Clear");
+            System.exit(0);
+        }
     }
 
     /**

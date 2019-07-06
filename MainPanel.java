@@ -14,15 +14,17 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
     private Player player;
     private Field field;
     private Thread mainLoop;
-
-    private int offsetX, offsetY;
+    private Font myFont;
 
     public MainPanel() {
         // パネルサイズの設定
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
 
-        // パネルの背景色の設定
+        // 背景色の設定
         setBackground(Color.black);
+
+        // フォントの設定
+        myFont = new Font("Lucida Sans", Font.BOLD, 20);
 
         // キーイベントを取れるようにする
         setFocusable(true);
@@ -32,10 +34,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 
         // プレイヤーの初期化
         player = new Player(field);
-
-        // オフセットの初期化
-        offsetX = 0;
-        offsetY = 0;
 
         // キーリスナーの登録
         addKeyListener(this);
@@ -68,6 +66,10 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
         }
     }
 
+    /**
+     * 左右キーが離されたらプレイヤーの動作を止める
+     * @param e キーイベント
+     */
     public void keyReleased(KeyEvent e) {
         int key = e.getKeyCode();
         switch(key) {
@@ -77,14 +79,21 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
         }
     }
 
+    /**
+     * Nothing todo
+     * @param e キーイベント
+     */
     public void keyTyped(KeyEvent e) {
-
+        // Nothing todo
     }
 
+    /**
+     * ゲームのメインループ
+     */
     public void run() {
-        // 50fps で画面更新
         for(;;) {
             try {
+                // だいたい50fpsくらいで画面更新
                 repaint();
                 Thread.sleep(20);
             } catch (Exception e) {
@@ -117,10 +126,17 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
             offsetY = field.getHeightInPx() - HEIGHT;
         }
 
+        // field の描画
+        field.draw(g, offsetX, offsetY);
+
         // Playerの描画
         player.draw(g, offsetX, offsetY);
 
-        // field の描画
-        field.draw(g, offsetX, offsetY);
+        // 残りライフと残り時間の描画
+        g.setFont(myFont);
+        FontMetrics fm = g.getFontMetrics(myFont);
+        g.setColor(Color.white);
+        g.drawString("Time:" + Integer.toString(field.getTimeRemained()), 0, HEIGHT);
+        g.drawString("Life: x" + Integer.toString(player.getLife()), 0, fm.getHeight());
     }
 }
