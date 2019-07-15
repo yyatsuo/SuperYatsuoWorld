@@ -127,10 +127,10 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
         }
 
         // field の描画
-        field.draw(g, offsetX, offsetY);
+        field.update(g, offsetX, offsetY);
 
         // Playerの描画
-        player.draw(g, offsetX, offsetY);
+        player.update(g, offsetX, offsetY);
 
         // 残りライフと残り時間の描画
         g.setFont(myFont);

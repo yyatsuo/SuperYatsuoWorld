@@ -34,6 +34,12 @@ public class Player {
     // field情報
     private Field field;
 
+    // 死亡フラグ
+    private boolean isDead;
+
+    // 無敵モード
+    private boolean isInvincible;
+
     /**
      * Player コンストラクタ
      * @param f プレイするフィールド
@@ -51,6 +57,8 @@ public class Player {
         myHeight = imgMeRight[0].getHeight(null);
 
         myLife = 4;
+        isDead = false;
+        isInvincible = false;
 
         field = f;
         x = field.getPlayerStartPos().x;
@@ -125,10 +133,10 @@ public class Player {
     }
 
     /**
-     * あたり判定
+     * あたり判定を行い、プレイヤーの移動パラメータを更新する
      * TODO: 座標調整
      */
-    private void checkCollision() {
+    private void updatePosition() {
         // 落下速度更新
         vy = vy + GRAVITY;
 
@@ -159,6 +167,13 @@ public class Player {
             }
         }
 
+        // 横方向から敵への衝突
+        if( field.isEnemy(nextx, y, myWidth, myHeight, isInvincible) ) {
+            if(!isInvincible) {
+                isDead = true;
+            }
+        }
+
         // x座標更新
         x = x + vx;
 
@@ -175,6 +190,12 @@ public class Player {
             isOnGround = false;
         }
 
+        // 上から敵を踏んだ時のあたり判定
+        if( field.isEnemy(x, nexty, myWidth, myHeight, true)) {
+            // 強制的にジャンプ
+            vy = -JUMP;
+        }
+
         // ｙ座標更新
         y = y + vy;
     }
@@ -185,9 +206,9 @@ public class Player {
      * @param offsetX X方向のオフセット
      * @param offsetY Y方向のオフセット
      */
-    public void draw(Graphics g, int offsetX, int offsetY) {
+    public void update(Graphics g, int offsetX, int offsetY) {
         // あたり判定 & プレイヤー位置更新
-        checkCollision();
+        updatePosition();
 
         // 描画画像選択
         Image imgMe;
@@ -219,11 +240,12 @@ public class Player {
         g.drawImage(imgMe, x-offsetX, y-offsetY, null);
 
         // タイムオーバーチェック
-        if (field.isTimeOver()) {
-            if (myLife > 0) {
+        if (field.isTimeOver() || isDead) {
+            if (myLife > 0 ) {
                 // テレッテテレッテテ
                 myLife--;
-                System.out.println(myLife);
+                isDead = false;
+                isInvincible = false;
                 field.restart();
                 x = field.getPlayerStartPos().x;
                 y = field.getPlayerStartPos().y;
@@ -235,7 +257,9 @@ public class Player {
             }
         }
 
-        if(field.isGoal()) {
+        // ゴール位置チェック
+        if (field.getGoalPos().x < x+(myWidth/2) && x+(myWidth/2) < field.getGoalPos().x+field.UNIT
+        &&  field.getGoalPos().y < y+(myHeight/2) && y+(myHeight/2) < field.getGoalPos().y+field.UNIT) {
             // くりあ
             // TODO: クリアしたっぽい演出
             System.out.println("Game Clear");
