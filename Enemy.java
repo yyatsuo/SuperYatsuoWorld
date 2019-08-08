@@ -1,7 +1,9 @@
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
+/**
+ * 敵キャラクタに関するクラスの実装
+ */
 public class Enemy {
     // 位置と速度
     private int x, y, initx, inity, vx;
@@ -18,7 +20,6 @@ public class Enemy {
 
     /**
      * Enemyコンストラクタ
-     * 
      * @param x 初期位置のX座標
      * @param y 初期位置のY座標
      * @param f Enemyを生成するフィールド
@@ -32,7 +33,7 @@ public class Enemy {
         myWidth = imgMe[0].getWidth(null);
         myHeight = imgMe[0].getHeight(null);
         this.initx = x;
-        this.inity = y;
+        this.inity = y+2;
         this.x = x;
         this.y = y;
         isDead = false;
@@ -82,15 +83,15 @@ public class Enemy {
         int nextx = x + vx;
 
         // 左から右へのあたり判定 (右側がブロックか、床がない)
-        if (field.isBlock(nextx + myWidth, y) || field.isBlock(nextx + myWidth, y + myHeight)
-                || !field.isBlock(nextx + myWidth, y + myHeight + 10)) {
+        if (field.isBlock(nextx + myWidth, y, false) || field.isBlock(nextx + myWidth, y + myHeight, false)
+                || !field.isBlock(nextx + myWidth, y + myHeight + 10, false)) {
             if (vx > 0) {
                 vx = -1;
             }
         }
 
         // 右から左へのあたり判定（左側がブロックか、床がない）
-        if (field.isBlock(nextx, y) || field.isBlock(nextx, y + myHeight) || !field.isBlock(nextx, y + myHeight + 10)) {
+        if (field.isBlock(nextx, y, false) || field.isBlock(nextx, y + myHeight, false) || !field.isBlock(nextx, y + myHeight + 10, false)) {
             if (vx < 0) {
                 vx = 1;
             }

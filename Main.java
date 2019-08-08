@@ -1,16 +1,15 @@
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
 
-public class Ex_13_1801015138 extends JFrame {
+public class Main extends JFrame {
     public static void main(String[] args) {
-        new Ex_13_1801015138();
+        new Main();
     }
 
     /**
      * ActionGame のコンストラクタ
      */
-    public Ex_13_1801015138() {
+    public Main() {
         setTitle("Super Yatsuo World");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         

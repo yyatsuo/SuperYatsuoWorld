@@ -1,16 +1,29 @@
 import java.awt.*;
-import java.awt.event.*;
 import javax.swing.*;
+import java.io.File;
 
+// Applet は非推奨らしい。。。
+import java.applet.Applet;
+import java.applet.AudioClip;
+import java.net.MalformedURLException;
+
+/**
+ * Playerキャラクタに関するクラスの実装
+ */
 public class Player {
+    // ゲームステート
+    public static final int PLAYING  = 0;
+    public static final int GAMEOVER = 1;
+    public static final int CLEAR    = 2;
+
     // プレイヤーの移動方向
-    private static final int LEFT = 0;
-    private static final int RIGHT = 1;
+    private final int LEFT = 0;
+    private final int RIGHT = 1;
 
     // 移動速度
-    private static final int SPEED = 6;
-    private static final int JUMP = 15;
-    private static final int GRAVITY = 1;
+    private final int GRAVITY = 1;
+    private int SPEED = 4;
+    private int JUMP = 15;
 
     // 描画関連情報
     private static final int ANIMATION_CNT = 5; // 100ms (20ms x 5) 毎に画像入れ替え
@@ -34,11 +47,19 @@ public class Player {
     // field情報
     private Field field;
 
+    // アイテムによるステータス向上
+    private int speedup;
+    private int power;
+    private boolean doubleJump;
+    private boolean allowDoubleJump;
+
     // 死亡フラグ
     private boolean isDead;
 
     // 無敵モード
     private boolean isInvincible;
+
+    private AudioClip soundDamage, soundPdown, soundJump;
 
     /**
      * Player コンストラクタ
@@ -53,24 +74,42 @@ public class Player {
         imgMeRight[1] = getImg("image/player_right2.png");
         imgMeRight[2] = getImg("image/player_right3.png");
 
+        try {
+            soundDamage = Applet.newAudioClip(new File("se/damage.wav").toURI().toURL());
+            soundPdown = Applet.newAudioClip(new File("se/p_down.wav").toURI().toURL());
+            soundJump = Applet.newAudioClip(new File("se/jump.wav").toURI().toURL());
+        } catch(MalformedURLException e) {
+            System.out.println("Audioファイルの読み込みに失敗しました。");
+            e.printStackTrace();
+        }
+
         myWidth = imgMeRight[0].getWidth(null);
         myHeight = imgMeRight[0].getHeight(null);
-
         myLife = 4;
-        isDead = false;
-        isInvincible = false;
-
         field = f;
+        init();
+    }
+
+    /**
+     * プレイヤー状態の初期化（myLife以外)
+     */
+    private void init() {
         x = field.getPlayerStartPos().x;
         y = field.getPlayerStartPos().y;
         vx = 0;
         vy = 0;
+        power = 0;
+        doubleJump = false;
+        allowDoubleJump = false;
         isOnGround = false;
+        isDead = false;
+        isInvincible = false;
         myDirection = RIGHT;
         animationCounter = 0;
-
         requestLeft = false;
         requestRight = false;
+        speedup = 0;
+        SPEED = 4;
     }
 
     /**
@@ -104,7 +143,13 @@ public class Player {
      */
     public void jump() {
         if(isOnGround) {
+            soundJump.play();
             vy = -JUMP;
+            if(this.doubleJump) allowDoubleJump = true;
+        } else if(allowDoubleJump) {
+            soundJump.play();
+            vy = -JUMP;
+            allowDoubleJump = false;
         }
     }
 
@@ -132,9 +177,33 @@ public class Player {
         return myLife;
     }
 
+    public int getPower() {
+        return power;
+    }
+
+    public boolean getDoubleJump() {
+        return doubleJump;
+    }
+
+    public int getSpeed() {
+        return speedup;
+    }
+
+    public void speedup() {
+        ++speedup;
+        SPEED += 3;
+    }
+
+    public void setDoubleJump() {
+        this.doubleJump = true;
+    }
+
+    public void powerUp() {
+        this.power++;
+    }
+
     /**
      * あたり判定を行い、プレイヤーの移動パラメータを更新する
-     * TODO: 座標調整
      */
     private void updatePosition() {
         // 落下速度更新
@@ -154,14 +223,14 @@ public class Player {
         int nextx = x + vx;
         
         // 左から右へのあたり判定
-        if( field.isBlock(nextx+myWidth, y) || field.isBlock(nextx+myWidth, y+myHeight) ) {
+        if( field.isBlock(nextx+myWidth, y, true) || field.isBlock(nextx+myWidth, y+myHeight, true) ) {
             if(vx > 0) {
                 vx = 0;
             }
         }
 
         // 右から左へのあたり判定
-        if( field.isBlock(nextx, y) || field.isBlock(nextx, y+myHeight) ) {
+        if( field.isBlock(nextx, y, true) || field.isBlock(nextx, y+myHeight, true) ) {
             if(vx < 0) {
                 vx = 0;
             }
@@ -170,7 +239,7 @@ public class Player {
         // 横方向から敵への衝突
         if( field.isEnemy(nextx, y, myWidth, myHeight, isInvincible) ) {
             if(!isInvincible) {
-                isDead = true;
+                this.isDead = true;
             }
         }
 
@@ -178,14 +247,17 @@ public class Player {
         x = x + vx;
 
         // 下から上へのあたり判定
-        if( field.isBlock(x, nexty) ||  field.isBlock(x+myWidth, nexty)) {
+        if( field.isBlock(x, nexty, true) ||  field.isBlock(x+myWidth, nexty, true)) {
             vy = 0;
+            // ブロックをたたく
+            field.knock(x, myWidth, nexty);
         }
 
         // 上から下へのあたり判定
-        if( field.isBlock(x, nexty+myHeight) || field.isBlock(x+myWidth, nexty+myHeight) ) {
+        if( field.isBlock(x, nexty+myHeight, true) || field.isBlock(x+myWidth, nexty+myHeight, true) ) {
             vy = 0;
             isOnGround = true;
+            allowDoubleJump = false;
         } else {
             isOnGround = false;
         }
@@ -198,6 +270,13 @@ public class Player {
 
         // ｙ座標更新
         y = y + vy;
+
+        // めり込み防止
+        while(field.isBlock(x, y, true) || field.isBlock(x+myWidth, y, true)) {
+            y++;
+        }
+
+        field.isItem(x, y, myWidth, myHeight, this);
     }
 
     /**
@@ -206,9 +285,11 @@ public class Player {
      * @param offsetX X方向のオフセット
      * @param offsetY Y方向のオフセット
      */
-    public void update(Graphics g, int offsetX, int offsetY) {
+    public int update(Graphics g, int offsetX, int offsetY) {
         // あたり判定 & プレイヤー位置更新
         updatePosition();
+
+        // アイテム取得判定
 
         // 描画画像選択
         Image imgMe;
@@ -239,21 +320,22 @@ public class Player {
         else imgMe = imgMeLeft[index];
         g.drawImage(imgMe, x-offsetX, y-offsetY, null);
 
-        // タイムオーバーチェック
-        if (field.isTimeOver() || isDead) {
+        // ダメージ判定
+        if(isDead && power>0 && field.getTimeRemained()>0) {
+            soundPdown.play();
+            power--;
+            isDead = false;
+        }
+        if (field.isDead() || isDead) {
             if (myLife > 0 ) {
                 // テレッテテレッテテ
+                soundDamage.play();
                 myLife--;
-                isDead = false;
-                isInvincible = false;
                 field.restart();
-                x = field.getPlayerStartPos().x;
-                y = field.getPlayerStartPos().y;
+                init();
             } else {
                 // げーむおーばー
-                // TODO: ゲームオーバーっぽい演出
-                System.out.println("Game Over");
-                System.exit(0);
+                return GAMEOVER;
             }
         }
 
@@ -261,10 +343,9 @@ public class Player {
         if (field.getGoalPos().x < x+(myWidth/2) && x+(myWidth/2) < field.getGoalPos().x+field.UNIT
         &&  field.getGoalPos().y < y+(myHeight/2) && y+(myHeight/2) < field.getGoalPos().y+field.UNIT) {
             // くりあ
-            // TODO: クリアしたっぽい演出
-            System.out.println("Game Clear");
-            System.exit(0);
+            return CLEAR;
         }
+        return PLAYING;
     }
 
     /**
