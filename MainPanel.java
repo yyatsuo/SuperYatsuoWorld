@@ -255,7 +255,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        ImageIcon icon = new ImageIcon(filename);
+        var url = getClass().getResource("/"+filename);
+        ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;
     }

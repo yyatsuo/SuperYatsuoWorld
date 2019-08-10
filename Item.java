@@ -4,7 +4,6 @@ import javax.swing.*;
 // Applet は非推奨らしい。。。
 import java.applet.Applet;
 import java.applet.AudioClip;
-import java.net.MalformedURLException;
 
 /**
  * フィールド内に配置するアイテムに関する実装
@@ -100,7 +99,8 @@ public class Item {
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        ImageIcon icon = new ImageIcon(filename);
+        var url = getClass().getResource("/"+filename);
+        ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;
     }

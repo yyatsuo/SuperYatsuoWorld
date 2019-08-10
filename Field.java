@@ -98,11 +98,15 @@ public class Field implements ActionListener{
             }
         }
         try {
-            soundCoin = Applet.newAudioClip(new File("se/coin.wav").toURI().toURL());
-            soundKill = Applet.newAudioClip(new File("se/kill.wav").toURI().toURL());
-            soundKnock = Applet.newAudioClip(new File("se/knock.wav").toURI().toURL());
-            soundPup = Applet.newAudioClip(new File("se/p_up.wav").toURI().toURL());
-        } catch(MalformedURLException e) {
+            //oundCoin = Applet.newAudioClip(new File("se/coin.wav").toURI().toURL());
+            soundCoin = Applet.newAudioClip(getClass().getResource("/se/coin.wav"));
+            //soundKill = Applet.newAudioClip(new File("se/kill.wav").toURI().toURL());
+            soundKill = Applet.newAudioClip(getClass().getResource("/se/kill.wav"));
+            //soundKnock = Applet.newAudioClip(new File("se/knock.wav").toURI().toURL());
+            soundKnock = Applet.newAudioClip(getClass().getResource("/se/knock.wav"));
+            //soundPup = Applet.newAudioClip(new File("se/p_up.wav").toURI().toURL());
+            soundPup = Applet.newAudioClip(getClass().getResource("/se/p_up.wav"));
+        } catch(Exception e) {
             System.out.println("Audioファイルの読み込みに失敗しました。");
             e.printStackTrace();
         }
@@ -360,7 +364,8 @@ public class Field implements ActionListener{
      */
     private void loadMapfile(String f) {
         try {
-            File file = new File(f);
+            var url = getClass().getResource("/"+f);
+            File file = new File(url.toURI());
             if(file.exists()) {
                 FileReader r = new FileReader(file);
                 BufferedReader br = new BufferedReader(r);
@@ -378,9 +383,10 @@ public class Field implements ActionListener{
             else {
                 System.out.println("mapファイル " + f + "が見つかりません");
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("mapファイルの読み込みに失敗しました。");
             e.printStackTrace();
+            System.exit(1);
         }
     }
 
@@ -389,7 +395,8 @@ public class Field implements ActionListener{
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        ImageIcon icon = new ImageIcon(filename);
+        var url = getClass().getResource("/"+filename);
+        ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;
     }

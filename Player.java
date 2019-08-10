@@ -75,12 +75,16 @@ public class Player {
         imgMeRight[2] = getImg("image/player_right3.png");
 
         try {
-            soundDamage = Applet.newAudioClip(new File("se/damage.wav").toURI().toURL());
-            soundPdown = Applet.newAudioClip(new File("se/p_down.wav").toURI().toURL());
-            soundJump = Applet.newAudioClip(new File("se/jump.wav").toURI().toURL());
-        } catch(MalformedURLException e) {
+            //soundDamage = Applet.newAudioClip(new File("se/damage.wav").toURI().toURL());
+            soundDamage = Applet.newAudioClip(getClass().getResource("/se/damage.wav"));   
+            //soundPdown = Applet.newAudioClip(new File("se/p_down.wav").toURI().toURL());
+            soundPdown = Applet.newAudioClip(getClass().getResource("/se/p_down.wav"));
+            //soundJump = Applet.newAudioClip(new File("se/jump.wav").toURI().toURL());
+            soundJump = Applet.newAudioClip(getClass().getResource("/se/jump.wav"));
+        } catch(Exception e) {
             System.out.println("Audioファイルの読み込みに失敗しました。");
             e.printStackTrace();
+            System.exit(1);
         }
 
         myWidth = imgMeRight[0].getWidth(null);
@@ -353,7 +357,8 @@ public class Player {
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        ImageIcon icon = new ImageIcon(filename);
+        var url = getClass().getResource("/"+filename);
+        ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;
     }
