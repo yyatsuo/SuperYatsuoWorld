@@ -53,7 +53,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
     public Scores loadScore() {
         Scores s;
         try {
-            ObjectInputStream istream = new ObjectInputStream( new FileInputStream(scoreFile) );
+            File f = new File(scoreFile);
+            ObjectInputStream istream = new ObjectInputStream(new FileInputStream(f));
             s = (Scores)istream.readObject();
             istream.close();
         } catch(Exception e) {
@@ -65,7 +66,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
 
     public void saveScore() {
         try {
-            ObjectOutputStream ostream = new ObjectOutputStream(new FileOutputStream(scoreFile));
+            File f = new File(scoreFile);
+            ObjectOutputStream ostream = new ObjectOutputStream(new FileOutputStream(f));
             ostream.writeObject(myScores);
             ostream.flush();
             ostream.close();
@@ -255,7 +257,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        var url = getClass().getResource("/"+filename);
+        var url = getClass().getResource(filename);
         ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;

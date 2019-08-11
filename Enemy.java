@@ -136,7 +136,7 @@ public class Enemy {
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        var url = getClass().getResource("/"+filename);
+        var url = getClass().getResource(filename);
         ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;

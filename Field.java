@@ -364,8 +364,7 @@ public class Field implements ActionListener{
      */
     private void loadMapfile(String f) {
         try {
-            var url = getClass().getResource("/"+f);
-            File file = new File(url.toURI());
+            File file = new File(f);
             if(file.exists()) {
                 FileReader r = new FileReader(file);
                 BufferedReader br = new BufferedReader(r);
@@ -382,6 +381,7 @@ public class Field implements ActionListener{
             }
             else {
                 System.out.println("mapファイル " + f + "が見つかりません");
+                System.exit(1);
             }
         } catch (Exception e) {
             System.out.println("mapファイルの読み込みに失敗しました。");

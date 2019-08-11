@@ -76,11 +76,11 @@ public class Player {
 
         try {
             //soundDamage = Applet.newAudioClip(new File("se/damage.wav").toURI().toURL());
-            soundDamage = Applet.newAudioClip(getClass().getResource("/se/damage.wav"));   
+            soundDamage = Applet.newAudioClip(getClass().getResource("se/damage.wav"));   
             //soundPdown = Applet.newAudioClip(new File("se/p_down.wav").toURI().toURL());
-            soundPdown = Applet.newAudioClip(getClass().getResource("/se/p_down.wav"));
+            soundPdown = Applet.newAudioClip(getClass().getResource("se/p_down.wav"));
             //soundJump = Applet.newAudioClip(new File("se/jump.wav").toURI().toURL());
-            soundJump = Applet.newAudioClip(getClass().getResource("/se/jump.wav"));
+            soundJump = Applet.newAudioClip(getClass().getResource("se/jump.wav"));
         } catch(Exception e) {
             System.out.println("Audioファイルの読み込みに失敗しました。");
             e.printStackTrace();
@@ -357,7 +357,7 @@ public class Player {
      * @param filename 画像ファイルのパス
      */
     private Image getImg(String filename) {
-        var url = getClass().getResource("/"+filename);
+        var url = getClass().getResource(filename);
         ImageIcon icon = new ImageIcon(url);
         Image img = icon.getImage();
         return img;
