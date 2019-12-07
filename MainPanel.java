@@ -100,7 +100,8 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
      */
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
-        switch(key) {
+        if (running) {
+            switch (key) {
             case KeyEvent.VK_LEFT:
                 // 左移動
                 player.moveLeft();
@@ -114,6 +115,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
                 // ジャンプ
                 player.jump();
                 break;
+            }
         }
     }
 
@@ -122,11 +124,13 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
      * @param e キーイベント
      */
     public void keyReleased(KeyEvent e) {
-        int key = e.getKeyCode();
-        switch(key) {
+        if (running) {
+            int key = e.getKeyCode();
+            switch (key) {
             case KeyEvent.VK_LEFT:
             case KeyEvent.VK_RIGHT:
                 player.stop();
+            }
         }
     }
 
@@ -135,6 +139,7 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
      * @param e キーイベント
      */
     public void keyTyped(KeyEvent e) {
+        System.out.println("Key Typed");
         if(running==false) {
             running = true;
             gameStart();
