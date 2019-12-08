@@ -139,7 +139,6 @@ public class MainPanel extends JPanel implements KeyListener, Runnable{
      * @param e キーイベント
      */
     public void keyTyped(KeyEvent e) {
-        System.out.println("Key Typed");
         if(running==false) {
             running = true;
             gameStart();
